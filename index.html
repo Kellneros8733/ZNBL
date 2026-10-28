@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Za nás bylo líp</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9e4d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#222}}
+:root[data-theme="dark"]{--bg:#222}
+html,body{height:100%;margin:0}
+body{background:var(--bg);display:flex;align-items:center;justify-content:center}
+canvas{width:100%;max-width:960px;max-height:100%;aspect-ratio:16/9;background:#fbf8ef;touch-action:none;cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M2 22l2-7 11-11 5 5-11 11z' fill='%23fc3' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") 2 22,pointer}
+</style></head><body><canvas id="c" width="960" height="540"></canvas><script>
+const cv=document.getElementById('c'),c=cv.getContext('2d');
+const FONT='"Patrick Hand","Comic Sans MS",cursive',NOPE='Jseš mladej, že tě napadaj takový hovadiny.';
+c.lineCap=c.lineJoin='round';
+let seed=0,k=0,TR=1;
+const R=()=>{const x=Math.sin(++k*12.9898+seed*78.233)*43758.5453;return(x-Math.floor(x)-.5)*2*TR};
+function ln(a,b,d,e){c.beginPath();c.moveTo(a+R(),b+R());c.quadraticCurveTo((a+d)/2+R()*2,(b+e)/2+R()*2,d+R(),e+R());c.stroke()}
+function rc(x,y,w,h,f){if(f){c.fillStyle=f;c.fillRect(x,y,w,h)}ln(x,y,x+w,y);ln(x+w,y,x+w,y+h);ln(x+w,y+h,x,y+h);ln(x,y+h,x,y)}
+function ci(x,y,r,f){c.beginPath();for(let i=0;i<=14;i++){const a=i/14*6.4;c.lineTo(x+Math.cos(a)*r+R(),y+Math.sin(a)*r+R())}if(f){c.fillStyle=f;c.fill()}c.stroke()}
+function hat(x,y,w,h,s=9){c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.lineWidth=1.5;for(let i=-h;i<w;i+=s)ln(x+i,y+h,x+i+h,y);c.restore()}
+function tx(t,x,y,s=22,al='left',col='#222'){c.font=s+'px '+FONT;c.textAlign=al;c.fillStyle=col;c.fillText(t,x,y)}
+function wrap(t,w){const o=[];t.split('\n').forEach(p=>{let l='';p.split(' ').forEach(wd=>{const n=l?l+' '+wd:wd;if(c.measureText(n).width>w&&l){o.push(l);l=wd}else l=n});o.push(l)});return o}
+function at(x,y,s,f){c.save();c.translate(x,y);c.scale(s,s);f();c.restore()}
+function arrow(x,y,d){ln(x-18*d,y,x+18*d,y);ln(x+18*d,y,x+6*d,y-12);ln(x+18*d,y,x+6*d,y+12)}
+
+const NOHA=()=>rc(-6,-24,12,48,'#e8d3a8'),NUZ=()=>{rc(-22,-4,26,8,'#ddd');rc(4,-6,18,12,'#8a5')},GLV=()=>ci(0,6,13,'#c33');
+const ITEMS={
+ drat:{n:'Drát',d(){ln(-20,0,-8,-12);ln(-8,-12,6,12);ln(6,12,20,0)}},
+ nuz:{n:'Nůž',d:NUZ},noha:{n:'Noha od stolku',d:NOHA},
+ omot:{n:'Omotaná noha',d(){NOHA();ln(-8,-14,8,-8);ln(-8,-4,8,2);ln(-8,6,8,12)}},
+ nuznoha:{n:'Oštěp z nohy a nože',d(){c.save();c.rotate(.6);rc(-4,-22,8,50,'#e8d3a8');c.fillStyle='#ddd';c.beginPath();c.moveTo(-10,-22);c.lineTo(0,-48);c.lineTo(10,-22);c.closePath();c.fill();c.stroke();ln(-5,-18,5,-12);ln(-5,-8,5,-2);ln(-5,2,5,8);c.restore()}},
+ zvon:{n:'Zvon na záchod',d(){GLV()}},tyc:{n:'Tyč ze záclony',d(){rc(-26,-3,52,6,'#bbb')}},
+ zvonok:{n:'Zvon s násadou',d(){rc(-2,-26,4,28,'#bbb');GLV()}},
+ lahvicka:{n:'Uspávadlo',d(){rc(-8,-14,16,28,'#9cf');rc(-4,-22,8,8)}},
+ ponozka:{n:'Ponožka',d(){rc(-8,-16,16,22,'#ccc');rc(-8,6,22,10,'#ccc')}},
+ hadicka:{n:'Hadička z kapačky',d(){ln(-20,8,-6,-8);ln(-6,-8,6,8);ln(6,8,20,-8)}},
+ leky:{n:'Léky spolubydlícího',d(){rc(-14,-10,28,20,'#fa8');ln(-14,0,14,0)}},
+ injekce:{n:'Injekce',d(){rc(-18,-4,26,8,'#ddd');ln(8,0,22,0)}},
+ propiska:{n:'Propiska',d(){rc(-20,-3,40,6,'#46c')}},
+ obal:{n:'Zmuchlaný obal',d(){ci(0,0,12,'#e8c88a');ln(-8,-8,8,8)}},
+ obalp:{n:'Narovnaný obal',d(){rc(-14,-10,28,20,'#e8c88a')}},
+ cedule:{n:'Cedule NERUŠIT',d(){rc(-16,-12,32,24,'#f5e9c6');ln(-10,-3,10,-3);ln(-10,4,10,4)}},
+ cedulaInj:{n:'Připravená cedule',d(){rc(-16,-12,32,24,'#f5e9c6');ln(-10,-3,10,-3);ln(-4,-14,6,10)}},
+ zarazka:{n:'Těžká zarážka',d(){rc(-12,-10,24,20,'#777')}},ponozkaS:{n:'Smradlavá ponožka',d(){rc(-8,-16,16,22,'#9b8');rc(-8,6,22,10,'#9b8');ln(-4,-26,4,-20)}},mrkev:{n:'Mrkev',d(){c.save();c.rotate(.6);ln(-4,-18,0,16);ln(4,-18,0,16);ln(-4,-18,4,-18);ln(-2,-18,-4,-26);ln(2,-18,4,-26);c.restore()}},pruzina:{n:'Pružina',d(){for(let i=0;i<5;i++){ln(-12,-16+i*8,12,-12+i*8)}}},fotak:{n:'Foťák',d(){rc(-16,-10,32,22,'#333');ci(0,1,8,'#9cf')}},mys:{n:'Myš',d(){ci(0,0,9,'#aaa');ci(-7,-8,4,'#aaa');ci(7,-8,4,'#aaa');ln(9,2,22,10)}},spalek:{n:'Špalek',d(){rc(-18,-10,36,22,'#a85');hat(-18,-10,36,22,6)}},pacidlo:{n:'Páčidlo',d(){ln(-18,16,10,-14);ln(10,-14,18,-8)}},vajgl:{n:'Vajgl',d(){rc(-12,-3,22,6,'#fff');rc(6,-3,6,6,'#d96')}},
+ ebon:{n:'Ebonitová tyč',d(){ln(-4,-24,4,24);ln(4,-24,8,24)}},liska:{n:'Vycpaná liška',d(){rc(-18,-8,30,16,'#d62');ci(18,-4,9,'#d62');ln(-18,0,-30,10)}},nabita:{n:'Nabitá tyč',d(){ln(-4,-24,4,24);ln(2,-30,-6,-20);ln(-6,-20,4,-14)}},router:{n:'Starý router',d(){rc(-20,-6,40,14,'#667');ln(-8,-6,-12,-20);ln(8,-6,12,-20)}},navod:{n:'Návod v němčině',d(){rc(-14,-16,28,32,'#fffdf4');ln(-8,-6,8,-6);ln(-8,2,8,2)}},bomba:{n:'Plynová bomba',d(){rc(-12,-20,24,40,'#c33');rc(-5,-28,10,8,'#555')}},
+ negativy:{n:'Negativy',d(){rc(-16,-10,32,20,'#334');ln(-16,-3,16,-3);ln(-16,4,16,4)}},ethkabel:{n:'Ethernetový kabel',d(){ln(-18,6,-8,-8);ln(-8,-8,6,8);ln(6,8,18,-6)}},notebook:{n:'Notebook',d(){rc(-18,-12,36,22,'#bbb');rc(-24,10,48,5,'#999')}},
+ rum:{d(){rc(-9,-6,18,30,'#d9a85a');rc(-4,-22,8,16);rc(-9,4,18,10,'#fff')}}};
+const COMB={'ebon+liska':['nabita'],'drat+noha':'omot','nuz+omot':'nuznoha','tyc+zvon':'zvonok','obalp+propiska':['cedule','propiska'],'cedule+injekce':['cedulaInj']};
+
+let P=null,S={mode:'title',prev:'title',q:[],cur:'',cb:null,act:null,tx:0,ty:470,ph:0,t:0,ang:0,sc:null,inv:false,sel:null,hint:false,D:null,menu:'main',toast:0,msg:''};
+const F=()=>P.f,B=[];
+function say(l,cb){S.q=l.slice();S.cur=S.q.shift();S.cb=cb||null;S.mode='dialog'}
+function screen(pages,btn,cb){S.mode='screen';S.sc={pages,i:0,btn,cb}}
+const nope=()=>say([NOPE]);
+function give(id){P.inv.push(id)}
+function drop(id){P.inv.splice(P.inv.indexOf(id),1)}
+function go(s,x){P.scene=s;P.px=S.tx=x;P.py=S.ty=470;S.sel=null;autosave()}
+
+const SK=n=>'zbl_'+n;
+function sv(n){try{localStorage.setItem(SK(n),JSON.stringify({P,ts:new Date().toLocaleString('cs')}))}catch(e){}}
+function rd(n){try{const r=localStorage.getItem(SK(n));return r?JSON.parse(r):null}catch(e){return null}}
+function autosave(){sv('auto')}
+function loadSlot(n){const d=rd(n);if(!d)return;P=d.P;S.ang=0;S.tx=P.px;S.ty=P.py;S.act=null;S.sel=null;S.mode='play'}
+
+const INTRO=['[Hospoda. Cinkání sklenic, hluk. Hlasy FRANTY a PEPY.]','FRANTA: …a koukni se na ně, Pepo. Každej mladej v ruce telefon a nikdo neumí pozdravit.','PEPA: Za nás bylo líp, Franto. Za nás se lidi koukali do očí.','FRANTA: Na to se napijem!','PEPA: Jenže teďka… všecko je… na… dis…pleji a my… dddoo…','[Žbluňk. Pepa padá na zem.]','(sem přijdou tvoje nadabované dialogy)'];
+const CTRL=['OVLÁDÁNÍ\nLevé tlačítko: chodit, mluvit, sbírat a používat\nPravé tlačítko nebo H: ukáže, co jde použít (Stará dobrá)\nI: inventář · Esc: menu','PŘEDMĚTY\nKlikni na předmět a pak na cíl, nebo ho přetáhni.\nKombinace: přetáhni předmět na jiný předmět v inventáři.'];
+const WAKE=['Pepa: Ááách… hlava. Kde to… jo, doma. Nad mísou. Skvělý.','Pepa: Včera jsem s Frantou probíral, jak to bylo dřív. Pak tma. Aspoň že jsem se trefil dovnitř.','Pepa: Vstávej, mladej. Záchod je ucpanej a ty seš v hajzlu.','(placeholder monolog, dopíšeš)'];
+function newGame(d){P={d,scene:'wc',px:480,py:470,inv:[],f:{},meter:100,trem:0,tm:d=='mlada'?450:null};S.ang=0;S.tx=480;S.ty=470;S.act=null;S.sel=null;S.inv=false;
+ screen(INTRO,'Probudit se',()=>{S.mode='play';mark();autosave();say(WAKE)})}
+function timeUp(){screen(['Pepa bez léků dál nevydržel. Dlouho u něj nenastal žádný posun.','KONEC\nZa nás bylo líp… ale ne dlouho.'],'Zkusit znovu',()=>{if(!P.chk){S.mode='title';P=null;return}const o=JSON.parse(P.chk);Object.assign(P,o);P.px=S.tx=o.px;P.py=S.ty=470;P.tm=450;S.ang=0;S.act=null;S.sel=null;S.mode='play'})}
+function die(kind){screen(['Pepa vypil rum a spolkl poslední léky.','„Víš, co je na tom nejhorší? Že se nikdo nebude divit.\nZa nás bylo líp… jenže kdo je ten „my“?“\n\n(sem napiš vlastní dramatický monolog)','KONEC č. 1\nPro Pepu to nebyl nejlepší nápad.'],'Zkusit znovu',()=>{const q=F();q.alc=false;q.gRum=false;if(kind=='pills'){q.pills=false;q.brk=false;q.sk=2}S.mode='play'})}
+function takePills(){if(F().alc){die('pills');return}F().pills=true;P.meter=100;if(P.tm!=null)P.tm=450;say(['Poslední kousek. No nic, hlavně že je to dole.',F().pj?'Mám léky i pyžamo. Jdu spát.':'V montérkách do postele nejdu, chtělo by to pyžamo.'])}
+function bed(){const q=F();if(!q.pills)return say(['Bez léků neusnu.']);if(!q.pj)return say(['V montérkách do postele nejdu.']);S.mode='slip';S.t=0;S.ang=0;S.tx=330;S.ty=455;S.act=null}
+function combine(a,b){let r=COMB[[a,b].sort().join('+')],keep;S.sel=null;if(r=='nuznoha'&&!F().rodCut)return say(['Pepa: Néé, nůž ještě předtím k něčemu potřebuju.']);if(Array.isArray(r)){keep=r[1];r=r[0]}if(r){if(a!=keep)drop(a);if(b!=keep)drop(b);give(r);if(r=='cedulaInj')F().signReady=true;say(COMBMSG[r]||['Spojeno: '+ITEMS[r].n])}else nope()}
+const COMBMSG={nabita:['Pepa tře liščím ocasem o tyč. Pepa: Jasný, statická elektřina! Cha, já tě uškvařím, ty bestie. Ale jak to na něj převést…'],nuznoha:['Hotovo. Oštěp z nohy od stolku a nože. Žádná věda.'],cedule:['Napsal jsem vzkaz: NERUŠIT.'],cedulaInj:['Super, teď to jen připnout na dveře zvenku.']};
+function choose(o){S.ch=o;S.mode='choice'}
+const G=fn=>function(a){if(!F().nDone){say(['Nejdřív bych si měl promluvit se sestrou.']);return}return fn.call(this,a)};
+function tk(flag,item,msg){const q=F();if(!q.sleep)return say(['Spolubydla by si toho všiml. Nejdřív ho musím uspat.']);q[flag]=true;give(item);say([msg])}
+const WAKE2=['Pepa: Co… kde… (rozhlédne se) Nemocnice? Zase?','Doktor: Pane Panděro, jste vzhůru. Bouchl jste se do hlavy a upadl do kómatu.','Doktor: Zachránil vás soused, zavolal sanitku. Bez těch léků byste umřel. V nemocnici jsme vám je dali.','Doktor: Na další léky si zajděte na recepci pro e-předpis. (odchází)','(placeholder, dopíšeš a nadabuješ)'];
+function act2(){P.scene='nem';P.px=S.tx=170;P.py=S.ty=470;P.inv=[];P.f={pj:true};S.ang=0;S.act=null;S.sel=null;P.meter=100;P.trem=0;P.tm=P.d=='mlada'?450:null;mark();autosave();S.mode='play';say(WAKE2,()=>say(['Doktor: Tak já vás tu nechám odpočívat.','(Doktor odchází. placeholder, dopíšeš a nadabuješ)'],()=>{F().docGone=true}))}
+function endTreat(){screen(['Sestra: Z alkoholismu se budete muset léčit. Nikam vás nepustím.','Pepa zůstal v nemocnici na léčení.','KONEC\nVlastně jediný dobrý. Jeho cesta už se nikam dál nedostane.'],'Zkusit jinak',()=>{S.mode='play';nurse()})}
+function nurse(){const q=F();if(q.nDone)return say(['Sestra: A nic mi tu nepokazte, pane Panděro.']);
+ say(['Sestra: Pane Panděro! Vy zase? Aspoň že jste se probral.','(Je znát, že tu Pepa už byl a sestra ho nemusí.)'],()=>choose([{t:'„Sestro, nalejte mi panáka.“',f:()=>endTreat()},{t:'„Sestro, pusťte mě domů, jinak odejdu sám.“',f:()=>{S.mode='play';q.nDone=true;say(['Sestra: No co s váma mám dělat.','Pepa: (sám pro sebe) Přišel jsem sem jen ve svým pyžamu, takže si musím sehnat nějaký fešný hadry.','Pepa: Asi tam dojdu oknem, jen tady ten spolubydla by mě napráskal. Musím s ním něco udělat.'])}}]))}
+function recep(){const q=F();
+ if(!q.rTalk){q.rTalk=true;return say(['Recepční: Ten spolubydlící je důležitej cápek, ať si to s ním moc nerozhazujete. Má poslední hodinu života, měl vést důležitej hovor, tak ať ho prý nerušíte.','Pepa: (pro sebe) Musím zajistit, aby tam k němu nikdo nešel. Ať ho najdou až po smrti.','Pepa: Prej potřebuju recept na ty léky.','Recepční: Ale to je přece skvělý, e-recepty a digitalizace! Poslala jsem vám e-recept na e-mail.','Pepa: Já žádnej e-mail nemám! Na to kašlu, půjdu do lékárny bez toho!'])}
+ if(q.signReady&&!q.asked)return choose([{t:'Poprosit o další e-mail',f:()=>{S.mode='play';q.asked=true;say(['Pepa: Pošlete mi ten recept ještě jednou. Že to teda zkusím.','Recepční: Jasně, hned! (začne čumět do počítače)','Pepa: Teď je moje chvíle.'])}},{t:'Nic',f:()=>{S.mode='play'}}]);
+ say(['Recepční: Ještě něco, pane Panděro?'])}
+function exitHosp(){const q=F();if(!q.signPlaced)return say(['Musím zajistit, aby do toho pokoje nikdo nešel, dokud ten spolubydla žije.']);
+ if(!(q.gPon&&q.gHad&&q.gLek&&q.gInj&&q.gProp))return say(['Ještě něco by se mi mohlo hodit.']);
+ say(['A teď rychle pryč.'],()=>go('lek',170))}
+
+const SC={
+wc:{draw(){const q=F();ln(0,410,960,410);c.save();c.globalAlpha=.3;c.lineWidth=1;for(let i=100;i<410;i+=45)ln(0,i,960,i);for(let i=0;i<960;i+=60)ln(i,100,i,410);c.restore();rc(850,290,90,14,'#fff');rc(870,304,50,80,'#fff');ln(895,290,895,262);ln(895,262,910,262);rc(110,90,130,110,'#cfe8f5');ln(175,90,175,200);ln(110,145,240,145);rc(300,150,36,70,'#e88');hat(300,150,36,70,7);ci(390,300,13,'#fff');ci(390,300,4);ln(430,100,430,190);ln(442,100,442,190);rc(570,100,100,300,'#cfe8f5');for(let i=0;i<5;i++)ci(580+i*20,104,4);hat(570,110,100,290,22);rc(708,138,84,84);ln(716,150,730,138);rc(380,438,200,34,'#c8b88a');hat(380,438,200,34,10);rc(430,190,110,100,'#fff');rc(430,290,110,110,'#fff');ci(485,335,34,q.clean?'#cfe8f5':'#9b8a5a');
+  if(!q.clean){rc(455,318,60,24,'#bcd7f0');c.save();c.lineWidth=1.5;for(let i=458;i<514;i+=8)ln(i,320,i,340);c.restore()}
+  rc(700,130,100,100);rc(690,270,120,16,'#fff');ln(40,50,40,50);
+  if(!q.gDrat){ln(240,445,270,452);ln(270,452,300,440);ln(300,440,330,450)}arrow(40,330,-1)},
+ hs:[{x:230,y:425,w:110,h:40,v:()=>!F().gDrat,f(){F().gDrat=true;give('drat');say(['Kus drátu. Na zemi leží jen to nejlepší.'])}},
+  {x:430,y:190,w:110,h:210,d:'Hajzl, kam jsem poslal včerejší piva. A vypadá to, že v něm ještě něco je.',u(it){const q=F();if(it=='zvonok'&&!q.clean){q.clean=true;q.pj=true;drop('zvonok');say(['(Pumpuje) …Pyžamo. Ucpalo mě vlastní pyžamo.','Co už, bez ostychu si ho beru na sebe.',q.pills?'Mám léky i pyžamo. Můžu jít spát.':'Hlava mi třeští. Musím si vzít svoje léky.'])}else nope()}},
+  {x:700,y:130,w:100,h:100,f(){say(['(Podívá se do zrcadla)','Pepo, i po takový noci pořád vypadáš skvěle. Chlap jako hora.','Mladý by ti záviděli.'])}},{x:690,y:270,w:120,h:30},
+  {x:0,y:250,w:80,h:160,ar:1,f:()=>go('kuch',880)}]},
+kuch:{draw(){const q=F();ln(0,410,960,410);
+  rc(110,250,230,150,'#e8d3a8');rc(100,236,250,16,'#c9b085');ln(225,252,225,400);ci(190,330,4);ci(260,330,4);
+  if(!q.gRum)at(160,222,1,ITEMS.rum.d);
+  rc(370,70,170,130);ln(455,70,455,200);ln(370,135,540,135);
+  if(!q.rodCut){ln(340,62,570,62);hat(350,66,34,125);hat(526,66,34,125)}else{hat(350,150,34,40);hat(526,150,34,40)}
+  rc(400,350,170,14,'#e8d3a8');ln(415,364,408,408);ln(555,364,562,408);
+  rc(610,160,100,250,'#efe2c4');ci(690,290,4);
+  if(!q.fridge){rc(740,90,120,320,'#e6f0f5');ln(740,230,860,230);rc(840,120,8,50);rc(840,250,8,70)}else rc(650,395,250,60,'#e6f0f5');
+  if(q.fridge&&!q.gZvon)at(790,345,1,ITEMS.zvon.d);
+  if(!q.gNuz)at(300,470,1,ITEMS.nuz.d);arrow(40,330,-1);arrow(920,330,1)},
+ hs:[{x:132,y:192,w:56,h:56,v:()=>!F().gRum,f(){const q=F();q.gRum=true;q.alc=true;P.trem=0;say(['Flaška rumu. Co by se tu hromadila, radši ji vypiju.','(Napije se)'],q.pills?()=>die('rum'):null)}},
+  {x:270,y:450,w:70,h:40,v:()=>!F().gNuz,f(){F().gNuz=true;give('nuz');say(['Nůž. Proč leží na zemi, to nechci vědět.'])}},
+  {x:760,y:310,w:60,h:70,v:()=>F().fridge&&!F().gZvon,f(){F().gZvon=true;give('zvon');say(['Zvon na záchod. Bez násady. Jako já.'])}},
+  {x:330,y:44,w:250,h:36,v:()=>!F().rodCut,d:'Záclonová tyč. Dala by se sundat, kdybych měl čím.',u(it){if(it=='nuz'){F().rodCut=true;give('tyc');say(['Tyč. Záclona bez ní nebude chybět.'])}else nope()}},
+  {x:740,y:90,w:120,h:320,v:()=>!F().fridge,d:'Lednice. Sípe jak já po schodech.',f(){F().fridge=true;say(['(Chce otevřít lednici. Ta je ve špatném stavu a převrhne se.)','Za ní něco leželo.'])}},
+  {x:650,y:395,w:250,h:60,v:()=>F().fridge},
+  {x:610,y:160,w:100,h:250,f(){say(['Ses podělal, mladej. Teď ven ani nepáchnu.','Radši bych se napil.'])}},
+  {x:100,y:236,w:250,h:170},{x:370,y:70,w:170,h:130},{x:400,y:340,w:170,h:70},
+  {x:0,y:250,w:80,h:160,ar:1,f:()=>go('loz',880)},{x:880,y:250,w:80,h:160,ar:1,f:()=>go('wc',80)}]},
+loz:{draw(){const q=F();ln(0,410,960,410);ln(0,90,960,90);if(!q.gGum)ci(510,118,12,'#f9a');
+  rc(60,110,160,290,'#e8d3a8');ln(140,110,140,400);if(q.brk)rc(145,120,68,270,'#555');else ci(130,260,4);
+  rc(350,250,18,160);rc(370,320,320,50,'#d6e4f5');rc(360,300,70,22,'#fff');hat(430,325,250,40);ln(380,370,380,410);ln(680,370,680,410);
+  if(!q.kick){rc(730,340,90,60,'#e8d3a8');ln(735,400,735,410);ln(815,400,815,410)}else rc(730,375,90,25,'#e8d3a8');arrow(920,330,1)},
+ hs:[{x:480,y:95,w:60,h:40,v:()=>!F().gGum,u(it){if(it=='nuznoha'){const q=F();q.gGum=true;q.rem=true;drop('nuznoha');say(['Seškrábl jsem to. Žvýkačka. Stará, ale pořád žvýkatelná.','(Žvýká) …Počkat. Léky! Já je mám ve skříni!'])}else nope()}},
+  {x:60,y:110,w:160,h:290,d:'Moje nádherná vyšperkovaná skříň. Jen je zamčená, mrcha jedna.',f(){const q=F();if(!q.rem)return nope();if(q.brk)return say(['Prázdná skříň.']);q.sk=(q.sk||0)+1;
+    if(q.sk==1)say(['Zamčeno. Chtělo by to klíč, jenže kde ho mám…','Včera jsem ho za něco vyměnil. Asi za pivo. Debil.','(Naštve se)']);
+    else if(q.sk==2)say(['(Bouchne do skříně) Otevři, ty svině!']);
+    else{q.brk=true;say(['(Vylomí dvířka)','Poslední krabička. Jo!'],takePills)}}},
+  {x:360,y:300,w:340,h:110,d:'Moje postel. Pamatuje toho víc než já.',f:bed},
+  {x:730,y:330,w:100,h:80,f(){const q=F();if(q.kick)return nope();q.kick=true;give('noha');say(['(Kopne do stolku. Noha upadne.)','Hm. Aspoň se to na něco hodí.'])}},
+  {x:880,y:250,w:80,h:160,ar:1,f:()=>go('kuch',80)}]},
+nem:{draw(){const q=F();ln(0,410,960,410);
+  c.save();c.strokeStyle='#c33';c.lineWidth=5;ln(640,70,640,110);ln(620,90,660,90);c.restore();c.save();c.globalAlpha=.4;ln(0,300,960,300);ln(0,306,960,306);c.restore();ci(740,90,22,'#fff');ln(740,90,740,74);ln(740,90,751,97);rc(380,60,130,120);ln(445,60,445,180);ln(380,120,510,120);rc(520,100,34,44,'#ccc');ci(537,122,4);
+  if(q.thrown&&!q.short){ln(522,108,552,138);ln(552,108,522,138);ln(520,122,554,122)}
+  if(q.short){c.save();c.strokeStyle='#e90';ln(520,100,500,85);ln(555,100,572,82);c.restore()}
+  rc(40,330,210,18,'#fff');rc(40,348,200,40,'#e8f0f0');ln(50,388,50,410);ln(235,388,235,410);rc(40,290,16,120);
+  rc(580,330,210,18,'#fff');rc(580,348,200,40,'#e8f0f0');ln(590,388,590,410);ln(775,388,775,410);rc(780,300,14,110);
+  ci(612,318,14,'#fbf8ef');ln(626,324,720,336);ln(720,336,780,332);if(q.sleep)tx('Zzz',650,290,28,'left','#999');
+  ln(560,170,560,410);ln(545,170,575,170);rc(548,182,26,56,'#cfe');ln(561,238,561,262);if(!q.gHad)ln(561,262,596,324);
+  if(!q.thrown){rc(260,350,60,60,'#e8d3a8');if(!q.gInj)rc(270,338,36,10,'#ddd')}else rc(385,396,64,14,'#e8d3a8');
+  rc(800,350,60,60,'#e8d3a8');if(!q.gLek)rc(810,336,32,14,'#fa8');
+  rc(450,350,90,50,'#ddd');ci(465,406,6);ci(525,406,6);if(!q.gBot)rc(480,320,22,30,'#9cf');
+  if(!q.gPon)rc(752,384,26,14,'#ccc');
+  rc(870,160,80,250,'#efe2c4');ci(880,290,4);if(!q.nDone)npc(350,440,'#cfe',1,0);if(!q.docGone)npc(420,440,'#fff',1.15,0)},
+ hs:[
+  {x:520,y:100,w:36,h:46,v:()=>!F().thrown||F().short,f:G(nope)},
+  {x:515,y:100,w:44,h:46,v:()=>F().thrown&&!F().short,f:G(()=>{F().short=true;say(['Co já tady budu řešit ňáký novotiny, tfuj.','(Plivne na kabely. Zámek vyzkratuje.)','Zase jsem na vás vyzrál, vy šmejdi čínský.'])})},
+  {x:745,y:378,w:40,h:28,v:()=>!F().gPon,f:G(()=>tk('gPon','ponozka','Ponožka. Smrdí, ale hodí se.'))},
+  {x:558,y:262,w:50,h:62,v:()=>!F().gHad,f:G(()=>tk('gHad','hadicka','Hadička z kapačky. Taky se může hodit.'))},
+  {x:545,y:176,w:34,h:68,f:G(nope),u:G(it=>{if(it=='lahvicka'){F().sleep=true;drop('lahvicka');say(['Pepa nalil uspávadlo do kapačky.','Spolubydla se zhroutí na polštář a začne chrápat.'])}else nope()})},
+  {x:808,y:330,w:36,h:20,v:()=>!F().gLek,f:G(()=>tk('gLek','leky','Jeho léky. Stejně je už nebude potřebovat.'))},
+  {x:266,y:334,w:44,h:18,v:()=>!F().gInj,f:G(()=>tk('gInj','injekce','Injekce. Do mě se nepíchne.'))},
+  {x:476,y:316,w:30,h:36,v:()=>!F().gBot,f:G(()=>{F().gBot=true;give('lahvicka');say(['Lahvička s uklidňujícími látkami. Pro někoho se bude hodit.'])})},
+  {x:320,y:320,w:60,h:130,v:()=>!F().nDone,f:nurse},
+  {x:450,y:350,w:90,h:55,f:G(nope)},
+  {x:255,y:345,w:70,h:65,v:()=>!F().thrown,f:G(()=>{const q=F();if(!q.gInj)return say(['Na stolku ještě něco leží.']);q.thrown=true;say(['(Pepa hodí stolek na zámek.)','Zámek z něj odletěl a odhalil kabely.'])})},
+  {x:380,y:390,w:75,h:22,v:()=>F().thrown,f:G(nope),u:G(it=>{if(it=='obal'){drop('obal');give('obalp');say(['Obal jsem vylisoval a narovnal o stolek.','Teď jen to něčím připevnit na dveře a napsat vzkaz.'])}else nope()})},
+  {x:380,y:60,w:130,h:125,f:G(()=>{const q=F();if(!q.short)return say(['Je to elektrikářsky zablokovaný, musím si nějak poradit.']);if(q.dressed)return nope();q.dressed=true;screen(['Pepa vyleze oknem…','…a po chvíli se vrací, oblečený do staromódního obleku.'],'Pokračovat',()=>{S.mode='play';say(['Těm sirotkům, co to prodávali, to stejně chybět nebude.','A i kdyby jo, tak jim estébáci neuvěří.'])})})},
+  {x:580,y:290,w:215,h:100},{x:795,y:345,w:70,h:65},
+  {x:870,y:160,w:80,h:250,f:G(()=>{if(!F().dressed)return say(['Ještě nemůžu ven. Oni mi dají nějaký jejich nový nechutný hadry, ty si seženu sám.']);go('recepce',170)})},
+  {x:40,y:290,w:210,h:120}]},
+recepce:{draw(){const q=F();ln(0,410,960,410);
+  rc(40,170,90,240,'#efe2c4');ci(120,290,4);tx('pokoj',85,155,20,'center');
+  if(q.signPlaced){rc(52,215,66,44,'#f5e9c6');tx('NERUŠIT',85,243,17,'center')}
+  npc(480,330,'#fcd');rc(350,320,260,90,'#e8d3a8');rc(505,282,60,36,'#ddd');
+  if(!q.gProp)rc(400,306,46,10,'#46c');
+  rc(690,350,60,60,'#999');ln(695,350,745,350);
+  rc(840,160,90,250,'#efe2c4');ci(850,290,4);tx('ven',885,155,20,'center')},
+ hs:[
+  {x:398,y:302,w:50,h:18,v:()=>!F().gProp,f(){F().gProp=true;give('propiska');say(['Propiska. Aspoň něco.'])}},
+  {x:690,y:350,w:60,h:60,f(){const q=F();q.bin=(q.bin||0)+1;if(q.bin==1)return say(['Do koše šahat nebudu.']);if(!q.gObal){q.gObal=true;give('obal');return say(['(Vytáhne z koše hamburger v obalu a rovnou ho sní.)','Obal si nechám.'])}nope()}},
+  {x:430,y:220,w:110,h:110,f:recep},{x:350,y:320,w:260,h:90},
+  {x:40,y:170,w:90,h:240,f:()=>go('nem',830),u(it){if(it=='cedulaInj'){if(!F().asked)return say(['Recepční by si mě všimla.']);F().signPlaced=true;drop('cedulaInj');say(['(Pepa připne cedulku na dveře.)','Prosím nerušit. Hotovo.'])}else nope()}},
+  {x:840,y:160,w:90,h:250,f:exitHosp}]},
+lek:{draw(){const q=F();ln(0,410,960,410);tx('LÉKÁRNA',480,90,40,'center');c.save();c.globalAlpha=.25;c.lineWidth=1;for(let i=410;i<540;i+=32)ln(0,i,960,i);for(let i=0;i<960;i+=64)ln(i,410,i,540);c.restore();
+  c.save();c.strokeStyle='#3a3';c.lineWidth=8;ln(330,40,330,80);ln(310,60,350,60);ln(630,40,630,80);ln(610,60,650,60);c.restore();ln(200,0,200,40);ci(200,48,12,'#ffe9a0');ln(760,0,760,40);ci(760,48,12,'#ffe9a0');
+  rc(60,120,200,170,'#e8d3a8');rc(700,120,200,170,'#efe2c4');ln(60,175,260,175);ln(60,230,260,230);ln(700,195,900,195);ln(700,250,900,250);
+  const cl=['#f9a','#9cf','#fc6','#9d9','#c9f'];for(let j=0;j<5;j++){rc(68+j*38,140,30,34,cl[j]);rc(68+j*38,195,30,34,cl[(j+2)%5]);rc(68+j*38,250,30,34,cl[(j+4)%5]);if(j>1){rc(708+j*38-76,212,30,34,cl[j]);rc(708+j*38-76,264,30,22,cl[(j+1)%5])}}
+  rc(580,285,24,18,'#9cf');ln(590,285,590,270);
+  rc(740,160,24,34,'#cfe');tx('lék',752,185,12,'center');rc(790,150,28,44,'#9cf');tx('70%',804,176,12,'center');
+  rc(330,320,300,90,'#e8d3a8');rc(560,290,50,30,'#ddd');npc(480,330,'#cfe',.92,0);if(q.lk)arrow(920,330,1)},
+ hs:[{x:430,y:220,w:110,h:110,f:lekar},{x:330,y:320,w:300,h:90},{x:880,y:250,w:80,h:160,ar:1,v:()=>F().lk,f:()=>go('ul',100)}]},
+ul:{draw(){const q=F();ln(0,410,960,410);rc(30,100,220,310,'#e8d3a8');hat(30,100,220,310,18);tx('LÉKÁRNA',140,150,28,'center');rc(100,260,80,150,'#fff');
+  rc(300,360,120,14,'#c9b085');ln(310,374,310,410);ln(410,374,410,410);ln(300,330,420,330);rc(470,340,50,70,'#999');ln(465,340,525,340);
+  ln(700,150,700,410);ln(700,150,740,150);ci(745,160,10,'#ffe9a0');ci(800,390,18);ci(870,390,18);ln(800,390,835,350);ln(835,350,870,390);ln(835,350,828,332);ln(820,332,840,332);ci(835,372,5);
+  npc(620,440,'#6a6',1.1,0);ln(606,318,634,318);if(q.rozc){arrow(40,330,-1);arrow(920,330,1)}},
+ hs:[{x:590,y:300,w:60,h:145,f:dozy,u(it){const q=F();if(it=='leky'&&!q.sold){q.sold=true;drop('leky');P.kc=(P.kc||0)+10000;say(['Dozy: Hmm, tohle beru. Tady máš deset litrů.','(Pepa dostává 10 000 Kč.)'],dozy)}else nope()}},
+  {x:0,y:250,w:80,h:160,ar:1,v:()=>F().rozc,f:()=>confirmPath('A')},{x:880,y:250,w:80,h:160,ar:1,v:()=>F().rozc,f:()=>confirmPath('B')}]},
+el:{draw(){const q=F();ln(0,410,960,410);rc(40,130,290,230,'#e8d3a8');for(let i=0;i<3;i++){ln(40,200+i*55,330,200+i*55);for(let j=0;j<4;j++)rc(60+j*65,165+i*55,50,30,i<2?'#bcd7f0':'#ccc')}
+  ci(30,60,10);ln(30,60,60,75);ci(930,60,10);ln(930,60,900,75);
+  if(!q.plak){rc(380,90,150,110,'#f5e9c6');tx('PRO',455,130,28,'center');tx('BOOMERY',455,165,28,'center')}
+  rc(560,330,220,80,'#e8d3a8');ci(740,300,22,q.fan?'#ddd':'#fff');if(!q.fan){ln(740,300,740,278);ln(740,300,762,300);ln(740,300,722,300)}else ln(724,284,756,316);
+  npc(640,330,'#fa6',1.05,1);if(q.fan)tx('(opravuje)',640,170,20,'center','#999');arrow(40,330,-1)},
+ hs:[{x:380,y:90,w:150,h:110,v:()=>!F().plak,f(){const q=F();if(!q.fan)return say(['Tung: Hej, co tam děláte?!','Pepa: (pro sebe) Musím ho nějak zaměstnat.']);q.plak=1;say(['Pepa: (čte nahlas) K připojení k internetu potřebujete kabel s internetem…','Pepa: Jo, ten má soused vedle, natáhnu ho přes zeď.','Pepa: Router s napájením… Franta má něco takovýho.','Pepa: A zařízení pro připojení: chytrý telefon, počítač nebo notebook. Jo, to seženu tady.'])}},
+  {x:715,y:275,w:50,h:50,d:'Větrák. Fouká na Tunga, aby nezkysl.',u(it){const q=F();if(it=='hadicka'&&!q.fan){q.fan=1;drop('hadicka');say(['(Pepa strčí hadičku do větráku. Ten se zasekne a plast se ohne.)','Tung: Ježíšmarjá, můj větrák! (začne ho opravovat)'])}else nope()}},
+  {x:60,y:130,w:270,h:230,d:'Regál s notebooky a routery. Kamery, bohužel, koukají.',f:()=>say(['Tung: Nesahat, pane!'])},
+  {x:600,y:200,w:80,h:140,f:tung},{x:560,y:330,w:220,h:80},{x:0,y:250,w:80,h:160,ar:1,f:()=>go('ul',880)}]},
+vb:{draw(){const q=F();ln(0,410,960,410);c.save();c.globalAlpha=.25;c.lineWidth=1;for(let i=410;i<540;i+=32)ln(0,i,960,i);for(let i=0;i<960;i+=64)ln(i,410,i,540);c.restore();rc(40,110,120,110,'#334');ln(100,110,100,220);ln(40,165,160,165);rc(800,110,120,110,'#334');ln(860,110,860,220);rc(250,60,460,10);ln(300,70,300,95);ci(300,105,14,'#ffe9a0');ln(480,70,480,95);ci(480,105,14,'#ffe9a0');ln(660,70,660,95);ci(660,105,14,'#ffe9a0');rc(230,150,500,10,'#c9b085');for(let i=0;i<9;i++)rc(245+i*52,125,16,25,i%2?'#9c6':'#e96');for(let i=0;i<4;i++){ln(320+i*30,300,320+i*30,285)}for(let i=0;i<5;i++){ci(270+i*110,430,13,'#a85');ln(270+i*110,443,270+i*110,470)}rc(200,300,560,110,'#a85');for(let i=0;i<7;i++)rc(230+i*70,250,18,40,i%2?'#9cf':'#9c6');npc(480,300,'#c96',1,1);npc(300,470,'#8ab',1,0);npc(520,470,'#b8a',.95,1);npc(740,470,'#7a9',1.05,0);for(let i=0;i<3;i++)rc(285+i*220,386,14,18,'#fc3');tx('U VLKA',480,90,44,'center');if(!q.gZar)rc(110,385,40,25,'#777');arrow(920,330,1)},
+ hs:[{x:105,y:380,w:50,h:35,v:()=>!F().gZar,d:'Těžká zarážka na dveře. Ta by mohla udělat pořádný rámus.',f(){F().gZar=1;give('zarazka');say(['Beru ji. Nikdo se nedívá.'])}},
+  {x:430,y:190,w:100,h:140,f:vlk},{x:200,y:240,w:560,h:170,d:'Samý pivo… Ne, držím se.',f:()=>say(['Držím se. Dneska ne.'])},{x:880,y:250,w:80,h:160,ar:1,f:()=>go('vs',80)}]},
+vs:{draw(){const q=F();ln(0,410,960,410);for(let i=0;i<3;i++){rc(120+i*160,330,120,14,'#e8d3a8');ln(140+i*160,344,140+i*160,410)}
+  c.save();c.globalAlpha=.25;c.lineWidth=1;for(let i=410;i<540;i+=32)ln(0,i,960,i);for(let i=0;i<960;i+=64)ln(i,410,i,540);c.restore();ci(840,150,40,'#fff');ci(840,150,20);ci(840,150,5);rc(60,100,120,100,'#334');ln(120,100,120,200);ln(300,0,300,50);ci(300,60,14,'#ffe9a0');ln(620,0,620,50);ci(620,60,14,'#ffe9a0');for(let i=0;i<3;i++){ci(150+i*160,295,13,'#fbf8ef');ci(212+i*160,295,13,'#fbf8ef');rc(138+i*160,310,24,20,['#8ab','#b8a','#7a9'][i]);rc(200+i*160,310,24,20,['#e96','#9c6','#c9f'][i]);rc(172+i*160,316,14,14,'#fc3')}rc(520,398,260,12,'#c9b085');if(q.sockSet)rc(690,386,22,12,'#9b8');if(q.mGone)rc(760,380,24,16,'#777');if(!q.mGone)npc(560,400,'#f6c',1.1,0);arrow(40,330,-1);arrow(920,330,1)},
+ hs:[{x:690,y:380,w:60,h:34,d:'Uvolněné prkno. Dá se na něj něco položit.',u(it){const q=F();if(it=='ponozkaS'&&!q.sockSet){q.sockSet=1;drop('ponozkaS');say(['Smradlavá ponožka leží na prkně. Mladej ji zatím nevidí.'])}else nope()}},
+  {x:750,y:370,w:60,h:40,u(it){const q=F();if(it!='zarazka')return nope();if(!q.sockSet)return say(['Nejdřív musím mladýho nalákat ponožkou na druhý konec.']);q.mGone=1;drop('zarazka');say(['(Zarážka bouchne o konec prkna. Mladej se otočí, šlápne na mokrou ponožku a uklouzne.)','Mladej: Moje ruka! (odchází)','Pepa: Aha, čekal jsem, že ho to katapultuje, ale je tu pevný podloží.'])}},
+  {x:520,y:280,w:80,h:130,v:()=>!F().mGone,d:'Mladej číšník. Stojí zrovna na tom uvolněném prkně.',f:()=>say(['Mladej: Něco potřebujete, dědo?'])},
+  {x:0,y:250,w:80,h:160,ar:1,f:()=>go('vb',880)},{x:880,y:250,w:80,h:160,ar:1,f:()=>go('vz',80)}]},
+fd:{draw(){const q=F();ln(0,410,960,410);rc(560,90,340,320,'#efe2c4');hat(560,90,340,320,18);rc(550,60,360,40,'#c66');rc(780,250,70,160,'#a85');ci(765,330,4,'#222');rc(620,170,90,70,'#cfe8f5');ln(665,170,665,240);ci(740,300,8,'#fc3');rc(580,260,100,150,'#bbb');
+  rc(160,140,34,270,'#a85');ci(177,100,95,'#bda');ln(194,170,260,160);ci(250,150,13,'#c96');if(!q.cat)rc(260,150,14,5,'#999');else rc(258,146,18,12,'#333');ln(240,138,244,130);ln(256,138,252,130);
+  rc(360,350,30,60,'#e55');ci(375,340,12,'#fcd');ln(363,335,375,305);ln(375,305,387,335);rc(283,392,100,16,'#7a5');if(!q.gMrk)for(let i=0;i<4;i++){ln(296+i*24,392,296+i*24,380);ln(290+i*24,380,302+i*24,380)}
+  if(!q.tri)TRK(480,395);if(q.drop&&!q.gFot)rc(770,440,22,14,'#333');if(S.mode=='cut'&&S.cu.kid)npc(850,440,'#6cf',.6,0);arrow(40,330,-1)},
+ hs:[{x:735,y:288,w:30,h:30,d:'Zvonek. Franta ho má od války.',f(){say(['(Zazvonil. Nikdo neodpovídá.)','Pepa: No co, nějak si poradím.'])}},
+  {x:230,y:130,w:50,h:50,d:'Kočka na stromě. V hubě drží myš.',u(it){const q=F();if(it!='fotak'||q.cat)return nope();drop('fotak');cut(170,(k,d)=>{const u=S.cu;if(!d){u.x0=u.x0??P.px;u.w=k<.2||k>.8;P.px=u.x0+(150-u.x0)*Math.min(1,k/.2);P.py=k<.2?470:k<.55?470-(k-.2)/.35*170:k<.8?300+(k-.55)/.25*170:470;if(k>.5)q.cat=1;return}if(k>.55)rc(P.px+20,P.py-70,12,5,'#999')},()=>{F().key=1;say(['(Pepa vezme myš do ruky, sleze dolů… a hned ji zahodí.)','Pepa: Co to dělám? To je ten absťák asi. Já mám přece klíč od Franty!'])})}},
+  {x:350,y:300,w:50,h:110,d:'Trpaslík. Ošklivej jak Franta.',u(it){const q=F();if(it=='propiska'&&!q.pr){q.pr=1;drop('propiska');give('pruzina');say(['(Pepa rozmlátí propisku o trpaslíka. Cink!)','Pepa: Pružina. Přesně, co jsem chtěl.'])}else nope()}},
+  {x:283,y:372,w:100,h:40,v:()=>!F().gMrk,d:'Záhon s mrkvemi.',f(){F().gMrk=1;give('mrkev');say(['Pepa: Jedna mrkev nikoho nezabije.'])}},
+  {x:450,y:370,w:70,h:45,v:()=>!F().tri,f(){const q=F();q.tc=(q.tc||0)+1;if(q.tc==1)return say(['Pepa: Neblázni, na to si sedat nebudu.']);if(q.tc==2)return say(['Pepa: Fakt jsem na tohle starej.']);q.tri=1;cut(190,(k,d)=>{const u=S.cu;if(!d){u.x0=u.x0??P.px;u.kid=k>.15&&k<.75;P.px=u.x0+(480-u.x0)*Math.min(1,k/.15);return}
+    if(k<.45){TRK(P.px+10,P.py-10);if(k>.2&&k<.35){ln(820,380,800,370);ln(820,390,795,390);ln(820,400,800,410);tx('cvak!',760,330,28,'center','#c33')}}else if(k<.7){const t=(k-.45)/.25;TRK(P.px+10+t*(790-P.px),P.py-10-Math.sin(t*3.14)*90)}else if(!q.drop){}
+    if(k>.4&&k<.5)tx('!!!',P.px,P.py-150,40,'center','#c33');if(k>.7&&k<.95){const y=Math.min(440,380+(k-.7)*500);rc(770,y,22,14,'#333')}if(k>.7)TRK(790,440)},()=>{q.drop=1;say(['Dítě: Maminkóóó! (upustí foťák a uteče)'])})}},
+  {x:760,y:430,w:40,h:30,v:()=>F().drop&&!F().gFot,f(){F().gFot=1;give('fotak');say(['Pepa: Cizí foťák. Hodí se.'])}},
+  {x:780,y:250,w:70,h:160,d:'Garáž. Zamčená, jako všechno u Franty.',f(){F().key?go('fg',100):say(['Zamčeno.'])}},{x:0,y:250,w:80,h:160,ar:1,f:()=>say(['Pepa: Zpátky nejdu, dokud nemám router.'])}]},
+fg:{draw(){const q=F();ln(0,410,960,410);rc(60,170,100,240,'#a85');ci(140,300,4,'#222');rc(700,130,230,220,'#c9b085');ln(700,200,930,200);ln(700,270,930,270);for(let i=0;i<4;i++){rc(715+i*52,160,40,38,'#bcd');rc(715+i*52,230,40,38,'#e9a')}if(!q.gPac){c.save();c.strokeStyle='#c22';c.lineWidth=9;ln(712,190,806,190);ln(806,190,826,170);c.restore();c.save();c.strokeStyle='#fb0';c.lineWidth=2;ci(766,186,30);c.restore()}
+  const a=-(q.fall?.18:(q.carK||0)*.18);c.save();c.translate(480,370);c.rotate(a);rc(-170,-75,340,55,'#8ab');rc(-100,-120,200,45,'#cfe8f5');ln(-170,-20,170,-20);ci(-110,-20,22,'#eee');ci(110,-20,22,'#eee');c.restore();
+  rc(350,370,40,34,'#a85');if(!q.fall)rc(570,370,40,34,'#a85');else if(!q.gSpa)rc(690,428,40,26,'#a85');if(!q.gVaj){rc(180,448,70,12,'#555');rc(200,438,10,5,'#fff')}arrow(920,330,1)},
+ hs:[{x:570,y:370,w:40,h:34,d:'Pravý špalek pod autem. Ten levý tam radši nechám.',f(){const q=F();if(q.fall)return;cut(80,(k,d)=>{const u=S.cu;if(!d){q.carK=k;u.w=false;return}if(k>.1&&k<.6)tx('KOPANEC!',580,330,40,'center','#c33');if(k>.5)tx('BUCH!',360,300+Math.sin(k*80)*5,36,'center','#c33')},()=>{q.fall=1;say(['Pepa: Hups. Auto se sklopilo doleva. Levý špalek ho drží.'])})}},
+  {x:680,y:418,w:60,h:44,v:()=>F().fall&&!F().gSpa,f(){F().gSpa=1;give('spalek');say(['Pepa: Špalek. Poleno jak vyšité.'])}},
+  {x:706,y:160,w:130,h:50,v:()=>!F().gPac,f(){F().gPac=1;give('pacidlo');say(['Pepa: Páčidlo. Tohle vždycky pomůže.'])}},
+  {x:180,y:440,w:70,h:30,v:()=>!F().gVaj,d:'Kanálek. Něco tam svítí.',f(){F().gVaj=1;give('vajgl');say(['Pepa: Vajgl. Fuj. Beru.'])}},
+  {x:310,y:260,w:340,h:120,d:'Auto na špalcích. Franta ho prodal po kolech.'},{x:60,y:170,w:100,h:240,f(){go('fs',860);if(!F().lit)say(['Pepa: Fuj, tma. Špatný věci ze západu žijou ve tmě. Chtělo by to tu najít někde vypínač.'])}},{x:880,y:250,w:80,h:160,ar:1,f:()=>go('fd',700)}]},
+fs:{draw(){const q=F();if(!q.lit){c.fillStyle='#000';c.fillRect(0,0,960,540);return}
+  ln(0,410,960,410);rc(300,110,300,230,'#c9b085');ln(300,190,600,190);ln(300,270,600,270);for(let i=0;i<4;i++){rc(315+i*70,210,50,50,'#bcd');rc(315+i*70,290,50,40,'#e9a')}if(!q.fox){rc(380,140,70,40,'#d62');ci(455,150,12,'#d62');ln(380,160,350,175)}else if(!q.gLis){rc(400,430,70,24,'#d62');ci(480,436,9,'#d62')}
+  if(!q.gEb){ln(740,400,760,200);ln(748,400,768,200)}rc(40,300,150,110,'#a85');if(!q.drw){ln(40,300,190,300);ln(115,300,115,410);ln(40,350,190,350);ln(40,300,190,410);if(!q.spd){ci(120,335,8,'#222');for(let i=0;i<4;i++){ln(120,335,105-i*3,320+i*8);ln(120,335,135+i*3,320+i*8)}}}else{rc(50,400,100,24,'#a85')}
+  rc(850,170,90,240,'#a85');rc(780,200,18,30,'#eee')},
+ hs:[{x:775,y:195,w:30,h:40,f(){F().lit=1;say(['(Cvak.) Světlo! Konečně.'])}},
+  {x:300,y:110,w:300,h:80,v:()=>F().lit,d:'Horní police. Něco tam leží, ale rukou to nesundám.',u(it){const q=F();if(it=='spalek'&&!q.fox){q.fox=1;drop('spalek');say(['(Pepa praští polenem do police. Žbluňk!)','Pepa: Fuj, co to je?!'])}else nope()}},
+  {x:395,y:420,w:100,h:40,v:()=>F().fox&&!F().gLis,f(){F().gLis=1;give('liska');say(['Pepa: Vycpaná liška. Hnus, ale hodí se.'])}},
+  {x:735,y:200,w:40,h:200,v:()=>!F().gEb,f(){F().gEb=1;give('ebon');say(['Pepa: Ebonitová tyč. Z fyziky mi zbylo aspoň tohle.'])}},
+  {x:40,y:290,w:150,h:130,v:()=>F().lit,f(){const q=F();say(q.drw?['Pepa: Prázdný šuplík.']:q.spd?['Pepa: Za tu pavučinu taky šahat nebudu.']:['Pepa: Jo, tam určitě ten router bude. Ale na toho pavouka ani nesáhnu.'])},
+   u(it){const q=F();if(it=='pruzina'&&!q.spr){q.spr=1;drop('pruzina');return say(['(Pepa zabodne konec pružiny do pavouka.)','Pepa: Drží. Ještě to nějak nabít.'])}
+    if(it=='nabita'&&!q.spd){if(!q.spr)return say(['Pepa: Jak to na něj převést? Musí tam být něco vodivýho.']);drop('nabita');return cut(70,(k,d)=>{if(d&&k>.15&&k<.9){c.save();c.strokeStyle='#fb0';c.lineWidth=4;ln(P.px-30,P.py-60,300,330+Math.random()*10);ln(300,330,200,315);ln(200,315,125,335);c.restore();tx('BZZZT!',130,280+Math.sin(k*90)*5,38,'center','#c33')}},()=>{q.spd=1;say(['Pepa: Cha! Uškvařenej.','Pepa: Tohle už je mi k ničemu. (zahodí tyč)'])})}
+    if(it=='pacidlo'){if(!q.spd)return say(['Pepa: Ani nesáhnu, dokud je tam ten pavouk.']);if(q.drw)return nope();q.drw=1;give('router');give('navod');return say(['(Pepa odtrhne šuplík i s pavučinou.)','Pepa: Router! A návod v němčině. Teď se naučit německy.'])}nope()}},
+  {x:850,y:170,w:90,h:240,v:()=>F().lit,f(){const need=['mrkev','vajgl','pacidlo','router','navod'];if(need.every(i=>P.inv.includes(i))){go('dom',150);P.tm=P.d=='mlada'?450:null;mark();say(['Pepa: Dobrý, tak teď sehnat ten kabel od sousedů.'])}else{go('fg',100);say(['Pepa: Ještě by se mi tu něco mohlo hodit.'])}}}]},
+dom:{draw(){const q=F();ln(0,410,960,410);rc(100,300,180,110,'#c9b085');if(!q.gRum)rc(140,262,20,40,'#d9a85a');rc(380,100,150,130,q.win?'#fff':'#cfe8f5');if(q.win){ln(380,100,430,160);ln(530,100,470,170);ln(400,230,450,190)}else ln(455,100,455,230);if(q.win&&!q.gBom){rc(430,430,50,26,'#c33');rc(480,436,10,14,'#555')}rc(800,160,100,250,'#a85');if(q.boom){c.save();c.fillStyle='#333';c.beginPath();for(let i=0;i<12;i++){const a=i/12*6.283,r=i%2?40:62;c.lineTo(55+Math.cos(a)*r,320+Math.sin(a)*r*1.3)}c.closePath();c.fill();c.restore();c.save();c.strokeStyle='#36c';c.lineWidth=5;ln(55,325,130,352);ln(130,352,180,378);c.restore()}arrow(920,330,1)},
+ hs:[{x:135,y:258,w:30,h:50,v:()=>!F().gRum,d:'Rum. Pořád tu je.',f(){F().gRum=1;F().rum2=1;give('rum');say(['Pepa: Pro jistotu. Nic se nestane.'])}},
+  {x:380,y:100,w:150,h:130,d:'Okno do ulice.',u(it){const q=F();if(it!='vajgl'||q.win)return nope();drop('vajgl');q.win=1;cut(130,(k,d)=>{if(!d)return;if(k<.3){const t=k/.3;rc(430+t*90,160-t*40+t*t*120,14,5,'#fff')}if(k>.3&&k<.55)tx('Hlas z ulice: Co to znečišťuje ulici?!',480,90,28,'center','#c33');if(k>.55&&k<.8)tx('Já vám znečistím byt!',480,90,28,'center','#c33');if(k>.7){const t=Math.min(1,(k-.7)/.15);rc(440,150+t*290,50,26,'#c33');if(t>=1)tx('CRASH!',470,300,48,'center','#c33')}},()=>say(['Pepa: Co já to s sebou vlastně tahám.','(Plynová bomba prorazila okno a zůstala ležet v obýváku.)']))}},
+  {x:425,y:425,w:70,h:35,v:()=>F().win&&!F().gBom,f(){F().gBom=1;give('bomba');say(['Pepa: Plynová bomba. Proč ne.'])}},
+  {x:800,y:160,w:100,h:250,f(){F().gBom?go('chod',260):say(['Pepa: Ještě ne, mladej, musím tady něco zařídit.'])}},
+  {x:20,y:250,w:100,h:160,v:()=>F().boom,d:'Díra po bombě. Trčí z ní ethernetový kabel.',f(){say(['Pepa: Kabel mám. Teď to všechno dohromady… (Act 4 čeká na scénář.)'])}}]},
+chod:{draw(){const q=F();ln(0,410,960,410);rc(0,380,150,30,'#999');for(let i=0;i<4;i++)ln(10+i*35,385+i*5,10+i*35,410);rc(200,160,90,250,'#a85');rc(235,404,80,10,'#8a6');rc(700,160,100,250,'#a85');ci(690,300,6,'#fc3');if(q.hole){c.save();c.fillStyle='#222';c.beginPath();for(let i=0;i<10;i++){const a=i/10*6.283,r=i%2?18:30;c.lineTo(745+Math.cos(a)*r,320+Math.sin(a)*r*1.2)}c.closePath();c.fill();c.restore();for(let i=0;i<5;i++)ln(745+Math.cos(i*1.3)*30,320+Math.sin(i*1.3)*36,745+Math.cos(i*1.3)*44,320+Math.sin(i*1.3)*50)}
+  if(!q.hole)rc(560,360,36,40,'#c63');rc(420,180,70,100,'#bbb');for(let i=0;i<3;i++)rc(432+i*20,200,12,30,'#eee');if(q.pj)ln(445,215,470,240);if(q.out){for(let i=0;i<4;i++)ci(740+Math.sin(Date.now()/400+i)*14,250-i*40,14+i*3)}},
+ hs:[{x:420,y:180,w:70,h:100,d:'Pojistky. Elektriku mi nikdo nevysvětluje.',u(it){const q=F();if(it=='mrkev'&&!q.pj){q.pj=1;drop('mrkev');say(['(Pepa strčí mrkev do spínače.)','Pepa: Teď to nenaženou. Ještě že byly nahozený.'])}else nope()}},
+  {x:235,y:395,w:80,h:25,d:'Moje rohožka. Teď slouží vlasti.',u(it){const q=F();if(it!='pacidlo')return nope();if(!q.pj)return say(['Pepa: Ještě předtím musím něco připravit.']);say(['Pepa: Zvednu dveře a hodím sousedům moji smrdutou rohožku.'],()=>cut(160,(k,d)=>{const u=S.cu;if(!d){u.x0=u.x0??P.px;u.w=k<.25;P.px=u.x0+(660-u.x0)*Math.min(1,k/.25);return}if(k>.3)ln(P.px+20,P.py-30,720,380);if(k>.4&&k<.6)tx('Manželka: Fuj, co to tady je? Dám to prát.',480,90,26,'center','#c33');if(k>.6&&k<.85)tx(q.pj?'Manžel: Ne, zlato! Rychlovarka a myčka, vyhodíš pojistky!':'Manžel: Ne, zlato! Rychlovarka a myčka… (vyběhne)',480,90,26,'center','#c33');if(!q.pj&&k>.8)npc(440,470,'#69c',1,1)},()=>{if(q.pj){q.out=1;say(['(Jistič chce sepnout, ale mrkev ho blokuje.)','(Z bytu se line pára a sousedi se neozývají.)'])}else say(['(Soused vyběhne, nahodí pojistky a vrátí Pepovi rohožku. Ani nepozdraví.)','Pepa: No musím něco vymyslet. Takhle to můžu dělat do nekonečna.'])}))}},
+  {x:545,y:350,w:60,h:60,v:()=>!F().hole,d:'Květináč. Kopací výška akorát.',f(){const q=F();if(!q.out)return say(['Pepa: Teď do toho kopat nebudu, soused by mě zmlátil.']);cut(90,(k,d)=>{if(d&&k>.2){const t=Math.min(1,(k-.2)/.6);rc(560+t*180,360-Math.sin(t*3.14)*90,36,40,'#c63');if(t>=1)tx('BUCH!',740,230,40,'center','#c33')}},()=>{q.hole=1;say(['(V sousedových dveřích zeje díra.)'])})}},
+  {x:700,y:160,w:100,h:250,d:'Dveře sousedů. Zvonek, na který se nikdo nezvedá.',f(){const q=F();if(q.hole)return enterApt();if(q.out)return say(['Pepa: Ticho jak v hrobě. Dobře.']);say(['Soused: Starejte se o sebe, nemám na vás čas.','Pepa: Musím je nějak vystrnadit, nebo se jich jinak zbavit.'])}},
+  {x:200,y:160,w:90,h:250,f:()=>go('dom',850)}]},
+sk:{draw(){const q=F();ln(0,410,960,410);
+  rc(30,160,90,250,'#a85');ci(105,290,5,'#fc3');
+  rc(150,340,150,70,'#c66');rc(150,305,150,38,'#d88');
+  rc(330,250,230,160,'#ddd');ln(330,300,560,300);ci(385,280,16);ci(445,280,16);rc(400,255,100,12,'#999');
+  c.save();c.strokeStyle='#e60';c.lineWidth=4;for(let i=0;i<5;i++){const x=380+i*28;ln(x,262,x+Math.sin(i*2)*8,226-(i%2)*18)}c.restore();
+  rc(600,300,110,110,'#bcd');ln(600,325,710,325);rc(625,340,60,10);if(q.gNeg)rc(600,385,110,25,'#889');
+  rc(740,200,110,100,'#cfe8f5');
+  if(q.bombSet)at(205,448,.7,ITEMS.bomba.d);
+  c.save();c.globalAlpha=.18;for(let i=0;i<9;i++)ci(100+i*100+Math.sin(Date.now()/700+i)*12,90+(i%3)*45,70+(i%2)*20,'#555');c.restore();arrow(920,330,1)},
+ hs:[{x:30,y:160,w:90,h:250,f(){say(['Pepa: Zpátky nejdu, dokud nemám kabel.'])}},
+  {x:170,y:400,w:70,h:60,v:()=>F().bombSet,f(){say(['Pepa: Bomba u zdi. Teď to nějak zapálit.'])},u(it){if(it=='negativy')blast();else nope()}},
+  {x:130,y:420,w:190,h:45,v:()=>!F().bombSet,d:'Podlaha u zdi. Za zdí je moje kuchyň.',f(){bombPut()},u(it){it=='bomba'?bombPut():nope()}},
+  {x:390,y:230,w:130,h:80,d:'Oheň na sporáku. Z čeho to hoří, to nechci vědět.',f(){say(['Pepa: Na to radši nesahat. Ale mohlo by se to hodit.'])}},
+  {x:600,y:300,w:110,h:110,d:'Myčka. Podezřele nahlas bublá.',f(){const q=F();if(q.gNeg)return say(['Pepa: Už je prázdná.']);q.gNeg=1;give('negativy');say(['(Pepa otevře myčku. Uvnitř jsou fotografické negativy.)','Pepa: Asi pomsta od manželky.'])}},
+  {x:880,y:250,w:80,h:160,ar:1,f:()=>go('sp',100)}]},
+sp:{draw(){const q=F();ln(0,410,960,410);
+  rc(240,250,420,16,'#c9b085');ln(260,266,255,410);ln(640,266,645,410);rc(420,150,110,90,'#bbb');rc(438,166,74,52,'#9cf');ln(475,240,475,250);
+  rc(700,100,160,200,'#e8d3a8');ln(700,160,860,160);ln(700,220,860,220);
+  const col=['#c33','#36c','#3a3','#fa0','#a3c','#333','#0aa','#a63','#888','#e6a'];
+  for(let i=0;i<10;i++){if(q.cable&&q.ok==i+1)continue;c.save();c.strokeStyle=col[i];c.lineWidth=4;ln(300+i*28,266,300+i*28+(i%3-1)*10,404);c.restore()}
+  ci(110,445,15,'#fbf8ef');ln(125,445,215,452);ln(215,452,260,470);ln(215,452,250,436);ln(125,445,160,425);if(q.hand)ln(160,425,296,408);
+  c.save();c.globalAlpha=.18;for(let i=0;i<9;i++)ci(100+i*100+Math.sin(Date.now()/700+i)*12,90+(i%3)*45,70+(i%2)*20,'#555');c.restore();arrow(40,330,-1)},
+ hs:[...Array.from({length:10},(_,i)=>({x:294+i*28,y:290,w:26,h:120,v:()=>!(F().cable&&F().ok==i+1),f(){cableTry(i+1)}})),
+  {x:420,y:150,w:110,h:90,d:'Počítač. Kabel k němu někde vede.'},
+  {x:90,y:420,w:190,h:50,d:'Manžel. Leží na zemi a nehýbe se. Asi z toho kouře.',f(){const q=F();q.hand=q.hand?0:1;say([q.hand?'(Pepa zvedne manželovu ruku ke kabelům.)':'(Pepa položí manželovu ruku zpátky.)'])}},
+  {x:0,y:250,w:80,h:160,ar:1,f:()=>go('sk',860)}]},
+vz:{draw(){ln(0,410,960,410);rc(420,230,120,110,'#fff');rc(430,340,100,70,'#fff');ci(480,360,30,'#9b8a5a');tx('WC',480,200,30,'center');arrow(40,330,-1)},
+ hs:[{x:430,y:230,w:110,h:180,d:'Mísa nespláchlého záchodu. Radši bych ji neviděl.',u(it){if(it=='ponozka'){drop('ponozka');give('ponozkaS');say(['(Pepa namočí ponožku.)','Teď je ještě smradlavější. Dokonalé.'])}else nope()}},{x:0,y:250,w:80,h:160,ar:1,f:()=>go('vs',880)}]}
+};
+
+function lekar(){const q=F();if(q.lk)return say(['Oksana: Něco dalšího, pane Panděro? Pan Tung vám rád poradí.']);
+ say(['Pepa: Dobrý den, potřebuju svoje léky.','Oksana: Bez e-receptu vám je dát nemůžu. Stačí mi ho ukázat ve smartphonu.','Pepa: A co mám teda dělat? Já vůbec nerozumím, co se po mně chce.','Oksana: Kupte si notebook a zařiďte internet. Doporučuju pana Tunga z elektroobchodu, ten tomu rozumí.','Pepa: A je tu i jiná možnost?','Oksana: (s ironií) No, bez výroby vlastních léků to jinak nepůjde.','(placeholder, dopíšeš a nadabuješ)'],()=>{q.lk=1})}
+function dozy(){const q=F();if(!q.sold)return say(['Dozy: Šerifa, já se jen tak s někým takhle bavit nebudu. Buď jedeš v businessu, nebo nic.']);
+ if(q.rozc)return say(['Dozy: Pod mostem u řeky, šéfe. Ale rozmysli si to.']);
+ say(['Dozy: Tak co chceš, strejdo? Ještě něco?','Pepa: Ty umíš přijít ke všemožným lékům, že jo?','Dozy: Jasný, šerifa. Jestli chceš něco, potkej mě pod mostem u řeky. Ale radím ti, šéfe, rozmysli si, do čeho jdeš.','Pepa: (pro sebe) Buď ustoupím a dám šanci technologiím, nebo to zkusím zvládnout hezky bez techniky, ale s rizikem.','(placeholder, dopíšeš a nadabuješ)'],()=>{q.rozc=true})}
+function confirmPath(k){const n=k=='A'?'elektroobchod':'sraz pod mostem';say(['POZOR! Tato volba je nenávratná a ovlivní konec vaší hry.','Chcete potvrdit: '+n+'?'],()=>choose([{t:'Ano',f:()=>{P.tm=null;F().path=k;k=='A'?act3A():screen(['Pepa vyráží: '+n+'.','Cesta B: pokračování čeká na scénář.'],'Zpět na titulku',()=>{S.mode='title';P=null})}},{t:'Ne',f:()=>{S.mode='play'}}]))}
+const KEYS={},LV=[5,8,10];let M=null;
+function mark(){P.chk=JSON.stringify({scene:P.scene,px:P.px,inv:P.inv,f:P.f,kc:P.kc||0})}
+function mini(){screen(['MINIHRA: TÁC\nW nebo ↑ jdeš dopředu, S nebo ↓ dozadu.\nTác se naklání. Vyrovnávej ho opačným směrem klávesami A / ← a D / →.\nDrž ukazatel v zelené. Moc dlouho ve žluté: pivo ukápne. Moc dlouho v červené: vylije se.\nHosté přebíhají cestu: zastav, nebo couvni (S). Dones piva ke stolu na konci druhé místnosti.'],'Začít',()=>startLv(0))}
+function startLv(l){const md=P.d=='mlada',n=3+l+(md?1:0),ob=[];for(let i=0;i<n;i++){const z=.12+.73*(i+Math.random()*.6)/n;[z,...(Math.random()<.35?[z+.05+Math.random()*.04]:[])].forEach(zz=>ob.push({z:zz,go:Math.random()<.7,gap:.05+Math.random()*.07,d:Math.random()<.5?1:-1,sp:(md?.035:.025)+Math.random()*.01,st:0,x:2}))}M={lv:l,pos:0,tl:0,v:0,yt:0,rt:0,t:0,ob};S.mode='mini'}
+function miniEnd(t){const l=M.lv;M=null;screen([t],'Zkusit znovu',()=>startLv(l))}
+function updMini(){const m=M,md=P.d=='mlada',mv=(KEYS.w||KEYS.arrowup?1:0)-(KEYS.s||KEYS.arrowdown?1:0),dir=(KEYS.d||KEYS.arrowright?1:0)-(KEYS.a||KEYS.arrowleft?1:0);m.t++;
+ m.v+=(Math.random()-.5)*(md?.0035:.0015)*(1+m.lv*.2)*(1+Math.abs(mv))+m.tl*(md?.0006:.0003)+dir*.0012;m.v*=.93;m.tl+=m.v;m.pos=Math.max(0,Math.min(1,m.pos+(mv>0?.0009-m.lv*.0001:mv<0?-.0006:0)));
+ const a=Math.abs(m.tl);if(a>.6)m.rt+=1/60;else if(a>.25)m.yt+=1/60;
+ for(const o of m.ob){if(!o.st&&o.go&&m.pos>o.z-o.gap){o.st=1;o.x=-1.3*o.d}if(o.st==1){o.x+=o.d*o.sp;if(Math.abs(o.x)>1.4)o.st=2}if(o.st==1&&Math.abs(o.z-m.pos)<.022&&Math.abs(o.x)<.3)return miniEnd('Narazil jsi do hosta! Pivo je v háji.')}
+ if(a>1||m.rt>(md?3:4))return miniEnd('Pivo se vylilo! Hospodský: Pepo, tohle nás stálo prachy.');if(m.yt>(md?7:8))return miniEnd('Pivo kape na zem. Hospodský: Neroztřes mi to!');
+ if(m.pos>=1){const l=m.lv;M=null;if(l<2)screen(['Hodina '+(l+1)+' hotová. Další hodina: '+LV[l+1]+' piv a víc hostů.'],'Pokračovat',()=>startLv(l+1));else screen(['Zavíračka! Pepa dostal 5000 Kč.'],'Pokračovat',()=>{F().paid=1;P.kc=(P.kc||0)+5000;go('vb',430);S.mode='play';say(['Hospodský: Dobrá práce, Pepiku. Tady máš pětitisícovku. A pivo je na mě.'],()=>choose([{t:'Přijmout pivo',f:()=>{F().beer=1;S.mode='play';say(['Pepa: Jedno nikomu neublíží.','(placeholder, dopíšeš a nadabuješ)'],()=>go('el',170))}},{t:'Odmítnout',f:()=>{F().beer=0;S.mode='play';say(['Pepa: Dneska ne. Držím se.'],()=>go('el',170))}}]))})}}
+function drawMini(){if(!M)return;const m=M,n=LV[m.lv],md=P.d=='mlada',ly=md?7:8,lr=md?3:4;c.fillStyle='#efe2c4';c.fillRect(0,0,960,300);c.fillStyle='#d9c9a0';c.fillRect(0,300,960,240);c.strokeStyle='#222';
+ {const z=.5-m.pos;if(z>-.1){const s=.25/(Math.max(z,0)+.25);rc(480-120*s,300-170*s,240*s,170*s,'#c9b085')}}
+ for(let i=1;i<=5;i++){const z=i/5-m.pos;if(z<-.05)continue;const s=.25/(Math.max(z,0)+.25),x=480+(i==5?0:(i%2?-1:1)*260*s),y=300+70*s;
+  at(x,y,s,()=>{rc(-90,0,180,14,'#e8d3a8');ln(-70,14,-70,70);ln(70,14,70,70);if(i==5){for(let j=0;j<n;j++)ci(-100+(j%5)*50,-34-(j>4?44:0),12,'#fcd')}else{ci(-45,-30,12,'#fcd');ci(45,-30,12,'#fcd');rc(-6,-14,12,14,'#fc3')}})}
+ m.ob.filter(o=>o.st==1&&o.z>m.pos-.03).sort((a,b)=>b.z-a.z).forEach(o=>{const z=o.z-m.pos,s=.25/(Math.max(z,0)+.25);at(480+o.x*300*s,300+70*s,s*1.1,()=>npc(0,0,'#e96',1,0))});
+ at(480+(md?(Math.random()-.5)*10:0),500,1,()=>{c.rotate(m.tl*.3);rc(-190,-8,380,16,'#a85');for(let j=0;j<n;j++){const x=-170+j*340/Math.max(n-1,1);rc(x-11,-38,22,30,'#fc3');rc(x-11,-44,22,8,'#fff')}ci(-200,6,18,'#fcd');ci(200,6,18,'#fcd')});
+ [[330,'#c33',60],[390,'#cc3',52],[442,'#6b6',75],[517,'#cc3',53],[570,'#c33',60]].forEach(z=>{c.globalAlpha=.6;c.fillStyle=z[1];c.fillRect(z[0],20,z[2],26);c.globalAlpha=1});rc(330,20,300,26);ln(330+(m.tl+1)*150,10,330+(m.tl+1)*150,56);
+ tx('Hodina '+(m.lv+1)+' · piv: '+n,40,40,24);tx('žlutá: '+Math.max(0,ly-m.yt).toFixed(1)+' s · červená: '+Math.max(0,lr-m.rt).toFixed(1)+' s',480,80,20,'center')}
+function act3A(){P.scene='el';P.px=S.tx=170;P.py=S.ty=470;S.ang=0;S.act=null;S.sel=null;P.tm=P.d=='mlada'?450:null;mark();autosave();S.mode='play';say(['(Elektro Tung. Na tabuli: „Pro boomery“.)','(placeholder, dopíšeš a nadabuješ)'])}
+function startVlk(){S.mode='play';go('vb',100);P.tm=P.d=='mlada'?450:null;mark()}
+function enterApt(){P.f.ok=P.f.ok||1+Math.floor(Math.random()*10);P.aptSnap=JSON.stringify({inv:P.inv.slice(),f:P.f,kc:P.kc||0});P.brMax=P.d=='mlada'?180:300;P.br=P.brMax;go('sk',140);mark();say(['Pepa: Fuj, kouř! Tady to musím rychle zvládnout, než se udusím.'])}
+function brUp(){screen(['Pepa se v kouři udusil.','KONEC\nZa nás bylo líp… ale ne v tomhle bytě.'],'Zkusit znovu',()=>{const o=JSON.parse(P.aptSnap);P.inv=o.inv;P.f=o.f;P.kc=o.kc;P.brMax=P.d=='mlada'?180:300;P.br=P.brMax;go('sk',140);S.mode='play'})}
+function bombPut(){const q=F();if(!P.inv.includes('bomba'))return say(['Pepa: Nemám co položit.']);if(!q.cable)return say(['Pepa: Nejdřív musím zjistit, který kabel vede k internetu.']);q.bombSet=1;drop('bomba');say(['Pepa: Dobrej nápad. Teď to nějak zapálit.'])}
+function cableTry(i){const q=F();
+ if(!q.hand)return say(['Pepa: Přes ten kouř nevidím nic a kdyby, stejně bych to nepoznal.','Pepa: Musím nějak zjistit, kterej je s internetem.']);
+ if(i!=q.ok){q.hand=0;return cut(70,(k,d)=>{if(d){tx('BZZZT!',200+Math.sin(k*90)*6,380,44,'center','#c33');c.save();c.strokeStyle='#fb0';c.lineWidth=4;ln(160,425,294+(i-1)*28,400);c.restore()}},()=>say(['Pepa: Jo, v tomhle je hodně šťávy. Ten to nebude.']))}
+ q.cable=1;q.hand=0;give('ethkabel');say(['(Manžel se ani nehne.)','Pepa: Tenhle! (zařve a vytrhne kabel z počítače)','Pepa: No vlastně jsem se mohl rovnou podívat, který vede do počítače. Ale už je to jedno.','Pepa: Teď ho dostat ke mně domů.'])}
+function blast(){const q=F();drop('negativy');q.blown=1;cut(160,(k,d)=>{if(!d)return;
+ const n=Math.floor(Math.min(1,k/.5)*14);for(let i=0;i<n;i++){const t=i/14;rc(445-240*t,310+130*t,10,6,'#223')}
+ if(k>.55)tx('SYYYK…',330,200,36,'center','#c33');
+ if(k>.8){c.globalAlpha=Math.min(1,(k-.8)/.2);c.fillStyle='#fff';c.fillRect(0,0,960,540);c.globalAlpha=1}},
+ ()=>screen(['PRÁSK!'],'Probudit se',()=>{S.mode='play';P.br=null;say(['Pepa: Auuu… To byla rachota.','(Pepa prohodí kabel dírou ve zdi.)','Pepa: Super, slyším hasiče. Musím rychle k sobě do bytu.'],()=>{go('dom',600);screen(['O hodinu později…'],'Pokračovat',()=>{F().boom=1;P.inv=P.inv.filter(i=>i!='ethkabel');mark();S.mode='play';say(['Pepa: Dobrý, hasiči už to uhasili. Můžu se pustit do práce.'])})})}))}
+function endA(){say(['Pepa: Musím skočit k Frantovi pro toho routra, nebo co to je.'],()=>{go('fd',100);P.tm=P.d=='mlada'?450:null;mark()})}
+function cut(len,f,done){S.cu={t:0,len,f,done};S.mode='cut'}
+function TRK(x,y){ci(x-10,y+5,12);ci(x+14,y+8,7);ln(x-10,y+5,x,y-15);ln(x,y-15,x+14,y+8);ln(x-4,y-15,x+6,y-17)}
+function tung(){const q=F();if(!q.plak)return say(['Pepa: Nejdřív si přečtu ten plakát. Bez toho s Tungem nepohnu.']);if(q.nb)return say(['Tung: Děkuju za nákup, pane.']);
+ if(P.kc>=15000){P.kc-=15000;q.nb=1;give('notebook');return say(['Pepa: Dejte mi ten notebook.','Tung: Výborně, patnáct tisíc. (Pepa platí.)','(placeholder, dopíšeš a nadabuješ)'],endA)}
+ const o=()=>say(['Pepa: (pro sebe) Pracovat se mi nechce, zvlášť u piva. Ale na tohle nemám dost peněz…'],()=>choose([{t:'Získat notebook legálně (jít k Vlkovi)',f:startVlk},{t:'Získat notebook nelegálně (nasadit masku)',f:()=>{S.mode='play';const sk=P.inv.includes('ponozka')?'ponozka':P.inv.includes('ponozkaS')?'ponozkaS':null;if(!sk)return say(['Pepa: Nemám čím si zakrýt obličej. Ponožku jsem už někam zadělal.'],o);drop(sk);q.nb=1;q.ill=1;give('notebook');say(['Pepa: Ponožka na hlavu. Nikdo mě nepozná.'],()=>cut(150,(k,d)=>{const u=S.cu;if(!d){u.w=k>.5;if(k>.5){P.px=170-(k-.5)*460;S.ph+=.35}return}
+ const a=Math.min(1,k/.35),sx=P.px+26*(1-a),sy=P.py-70-55*a;rc(sx-13,sy-17,26,32,'#9b8');ln(sx+13,sy-4,sx+26,sy+14);if(k>.3){c.fillStyle='#222';c.fillRect(sx-7,sy-6,4,4);c.fillRect(sx+3,sy-6,4,4)}
+ if(k>.4)rc(P.px+18,P.py-62,34,22,'#bbb');if(k>.5)tx('ZLODĚJ!',480,150+Math.sin(k*60)*6,48,'center','#c33')},endA))}}]));
+ if(q.tt)return say(['Tung: Tak co, rozmyslel jste se?'],o);q.tt=1;
+ say(['Pepa: Dobrý den, potřebuju něco, čím se spojím s e-mailem.','Tung: Jojo, všechno máme. Speciální cena jen pro vás: 15 000 Kč za notebook. Má i virtuální realitu, možnost Skynetu a čtečku sítnice.','Pepa: Hele, nepotřebuju takovýhle kraviny, dej mi něco, co otevře e-mail.','Tung: Nic jinýho nemám, pane. Tohle, nebo nic. Jestli seš chudej, u Vlka hledaj pomoc.'],o)}
+function vlk(){const q=F();if(q.paid)return say(['Hospodský: Dobrá práce, Pepiku.']);
+ if(!q.mGone){if(!q.vt){q.vt=1;return say(['Pepa: Nehledáš náhodou pomoc?','Hospodský: Pepiku, zrovna mám nového mladýho, co roznáší piva, tak asi ne.','Pepa: (pro sebe) Herdek, ten flek nutně potřebuju. Musím něco vymyslet.'])}return say(['Hospodský: Pepiku, nic pro tebe nemám.'])}
+ say(['Pepa: Máte volnej flek?','Hospodský: No, zrovna teď jo. Pepo, je nouze, nemám nikoho. Stačí tři hodiny do zavíračky a dám ti 5000.','(placeholder, dopíšeš a nadabuješ)'],mini)}
+function pepa(x,y,a,w){c.save();c.translate(x,y);c.rotate(a);const s=w?Math.sin(S.ph)*14:0;c.lineWidth=3;
+ ln(0,-48,-12+s,0);ln(0,-48,12-s,0);
+ if(P&&P.f.dressed){rc(-15,-92,30,46,'#6b5b4b');ln(0,-92,0,-50);ln(-4,-90,0,-80);ln(4,-90,0,-80)}else if(P&&P.f.pj){rc(-14,-92,28,46,'#bcd7f0');c.save();c.lineWidth=1.5;for(let i=-8;i<14;i+=8)ln(i,-90,i,-48);c.restore()}else ln(0,-92,0,-48);
+ ln(0,-84,-22,-60-s/2);ln(0,-84,22,-60+s/2);
+ ci(0,-110,17,'#fbf8ef');ln(-12,-124,-6,-131);ln(10,-125,5,-131);ln(24,-62,28,0);c.fillStyle='#222';c.fillRect(-7,-114,3,3);c.fillRect(5,-114,3,3);ln(-6,-102,6,-102);c.restore()}
+
+function npc(x,y,dress,h=1,old=0){at(x,y,h,()=>{ci(0,-110,16,'#fbf8ef');ln(0,-94,0,-50);rc(-14,-92,28,42,dress);hat(-14,-92,28,42,old?6:12);ln(0,-50,-9,0);ln(0,-50,9,0);ln(-14,-80,-22,-56);ln(14,-80,22,-56);c.fillStyle='#222';c.fillRect(-7,-114,3,3);c.fillRect(5,-114,3,3);
+ if(old){ln(-14,-120,-8,-128);ln(12,-120,8,-128);ln(26,-60,30,0)}else{ln(-8,-124,-9,-134);ln(0,-127,0,-138);ln(8,-124,9,-134)}})}
+const vis=o=>!o.v||o.v();
+const hsAt=(x,y)=>SC[P.scene].hs.find(o=>vis(o)&&x>=o.x&&x<=o.x+o.w&&y>=o.y&&y<=o.y+o.h);
+const slotAt=(x,y)=>{if(!S.inv||y>72||x<150)return-1;const i=Math.floor((x-150)/68);return P.inv[i]?i:-1};
+function act(o,it){if(it)return o.u?o.u(it):nope();const q=P.seen||(P.seen={}),key=P.scene+o.x+'_'+o.y;
+ if(o.d&&!q[key]){q[key]=1;return say([o.d],()=>{o.f&&o.f()})}
+ return o.f?o.f():nope()}
+function walkThen(o,it){S.tx=Math.min(900,Math.max(60,o.x+o.w/2));S.ty=455;S.act=()=>act(o,it);S.sel=null}
+function btn(x,y,w,h,t,f,s=28){B.push({x,y,w,h,f});rc(x,y,w,h,'#fffdf4');tx(t,x+w/2,y+h/2+s/3,s,'center')}
+
+function update(){
+ if(!P)return;
+ if(S.mode=='mini')updMini();
+ if(P.d=='mlada'&&P.tm!=null){if(P.tm>=150)P.abs=0;else if(!P.abs&&S.mode=='play'){P.abs=1;say(['Pepa: To je ten absťák… ruce se mi klepou.'])}}
+ if(S.mode=='play'&&!S.pause&&P.tm>0){P.tm-=1/60;if(P.tm<=0){P.tm=null;timeUp()}}
+ if(S.mode=='play'&&P.br>0){P.br-=1/60;if(P.br<=0){P.br=null;brUp()}}
+ if(S.mode=='play'||S.mode=='dialog'){if(P.d=='mlada'){P.meter=P.tm==null?100:Math.max(0,P.tm/4.5);const near=(P.scene=='kuch'&&!F().gRum)||['lek','vb','vs'].includes(P.scene);P.trem=near?Math.min(100,P.trem+.2):Math.max(0,P.trem-.5)}}
+ if(S.mode=='play'){const dx=S.tx-P.px,dy=S.ty-P.py,d=Math.hypot(dx,dy);P.ph=S.ph;
+  if(d>6){P.px+=dx/d*5;P.py+=dy/d*5;S.ph+=.35}else if(S.act){const a=S.act;S.act=null;a()}}
+ else if(S.mode=='cut'){const u=S.cu;u.t++;u.f(u.t/u.len,0);if(u.w)S.ph+=.35;if(u.t>=u.len){S.mode='play';u.done&&u.done()}}
+ else if(S.mode=='slip'){S.t++;const d=Math.abs(P.px-330);if(S.t<90&&d>5){P.px+=Math.sign(330-P.px)*5;S.ph+=.35}
+  if(S.t>=90&&S.t<=130)S.ang=-(S.t-90)/40*1.5;
+  if(S.t>=245)screen(['O 2 dny později…'],'Probudit se',act2)}}
+
+function drawGame(){
+ SC[P.scene].draw();
+ if(S.hint&&P.d=='stara')SC[P.scene].hs.forEach(o=>{if(!o.ar&&vis(o)){c.save();c.strokeStyle='#d22';c.lineWidth=3;ci(o.x+o.w/2,o.y+o.h/2,14);c.restore()}});
+ TR=1+(P.d=='mlada'?(P.trem+(P.tm!=null&&P.tm<150?(1-P.tm/150)*60:0))/70:0);
+ const w=(S.mode=='cut'&&S.cu.w)||S.mode=='play'&&Math.hypot(S.tx-P.px,S.ty-P.py)>6||(S.mode=='slip'&&S.t<90&&Math.abs(P.px-330)>5);
+ pepa(P.px,P.py,S.ang,w);TR=1;if(S.mode=='cut')S.cu.f(S.cu.t/S.cu.len,1);
+ if(S.mode=='slip'&&S.t>=95)tx('KLUZ!',P.px+60,300,52,'center','#c33');
+ if(P.d=='mlada'){if(P.tm!=null){const f=P.tm/450,cx=480,cy=38;ci(cx,cy,28,'#fff');c.save();c.fillStyle=f<.33?'#e88':'#9d9';c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,24,-Math.PI/2,-Math.PI/2+f*Math.PI*2);c.closePath();c.fill();c.restore();for(let i=0;i<12;i++){const a=i/12*6.283;ln(cx+Math.cos(a)*24,cy+Math.sin(a)*24,cx+Math.cos(a)*28,cy+Math.sin(a)*28)}const a=-Math.PI/2+f*6.283;ln(cx,cy,cx+Math.cos(a)*22,cy+Math.sin(a)*22)}
+  }
+ if(P.br!=null){const f=Math.max(0,P.br/P.brMax),cx=P.d=='mlada'?570:480,cy=38;ci(cx,cy,28,'#fff');c.save();c.fillStyle=f<.33?'#e88':'#9cf';c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,24,-Math.PI/2,-Math.PI/2+f*Math.PI*2);c.closePath();c.fill();c.restore();tx('dech',cx,cy+46,16,'center')}
+ if(S.inv){c.fillStyle='#fffdf4';c.fillRect(0,0,960,74);ln(0,74,960,74);tx('inventář [I]',14,44,22);
+  P.inv.forEach((id,i)=>{const x=150+i*68;rc(x,6,60,60,S.sel==id?'#ffe9a0':'#fff');at(x+30,36,.8,ITEMS[id].d)})}
+ else tx('▾ inventář [I]',14,30,20);
+ 
+ if(P.kc)tx(P.kc+' Kč',760,30,20,'right');tx('☰ menu [Esc]',946,30,20,'right');
+ if(S.D&&S.D.moved)at(S.D.x,S.D.y,.8,ITEMS[S.D.id].d);
+ if(S.mode=='choice')S.ch.forEach((o,i)=>btn(120,300+i*72,720,56,o.t,o.f,24));
+ if(S.mode=='dialog'){c.font='26px '+FONT;const L=wrap(S.cur,760),h=L.length*32+28,y0=S.inv?84:20;rc(80,y0,800,h,'#fffdf4');L.forEach((l,i)=>tx(l,100,y0+40+i*32,26));tx('▶',860,y0+h-8,18,'center','#999')}
+ if(S.mode=='slip'&&S.t>150){c.globalAlpha=Math.min(1,(S.t-150)/60);c.fillStyle='#111';c.fillRect(0,0,960,540);c.globalAlpha=1}}
+
+function drawScreen(){c.fillStyle='#111';c.fillRect(0,0,960,540);c.strokeStyle='#fff';
+ const s=S.sc,p=s.pages[s.i];c.font='32px '+FONT;const L=wrap(p,760);L.forEach((l,i)=>tx(l,480,230-L.length*20+i*44,32,'center','#fff'));
+ if(s.i==s.pages.length-1){rc(370,430,220,55);tx(s.btn,480,467,28,'center','#fff')}else tx('klikni…',480,500,20,'center','#aaa');c.strokeStyle='#222'}
+
+function drawTitle(){
+ tx('ZA NÁS BYLO LÍP',480,140,84,'center');ln(180,160,780,160);ln(220,172,740,172);
+ tx('vyber dobu:',480,225,32,'center');
+ btn(130,255,320,90,'Stará dobrá',()=>newGame('stara'));btn(510,255,320,90,'Mladá divná',()=>newGame('mlada'));
+ tx('klasický point and click:',290,372,20,'center','#555');tx('pravé tlačítko ukáže, co jde použít',290,396,20,'center','#555');tx('bez léků a třesu',290,420,20,'center','#555');
+ tx('hlídej si léky a abstinenční třes',670,372,20,'center','#555');tx('bez nápovědy pravým tlačítkem',670,396,20,'center','#555');
+ btn(490,450,220,50,'Ovládání',()=>screen(CTRL,'Zpět',()=>{S.mode='title'}),22);btn(250,450,220,50,'Nahrát hru',()=>{S.prev='title';S.mode='menu';S.menu='load'},22);
+ pepa(880,510,0,0)}
+
+function drawMenu(){
+ if(P&&S.prev=='play'){drawGame();c.fillStyle='rgba(251,248,239,.85)';c.fillRect(0,0,960,540)}else{c.fillStyle='#fbf8ef';c.fillRect(0,0,960,540)}
+ const back=()=>{S.menu='main';if(S.prev=='title')S.mode='title'};
+ const slot=(n,l,f)=>{const d=rd(n);btn(200,120+l*66,560,54,(n=='auto'?'Autosave':'Pozice '+n)+': '+(d?d.ts+' · '+d.P.scene:'prázdná'),()=>f(d),22)};
+ tx('MENU',480,80,48,'center');
+ if(S.menu=='main'){btn(330,120,300,60,'Pokračovat',()=>{S.mode='play'});btn(330,200,300,60,'Uložit hru',()=>S.menu='save');btn(330,280,300,60,'Nahrát hru',()=>S.menu='load');btn(330,360,300,60,'Ukončit hru',()=>{P=null;S.mode='title'})}
+ else if(S.menu=='save'){for(let i=1;i<=4;i++)slot(i,i-1,()=>{sv(i);S.toast=90;S.msg='Uloženo do pozice '+i});btn(380,400,200,50,'Zpět',()=>S.menu='main',22)}
+ else{['auto',1,2,3,4].forEach((n,i)=>slot(n,i,d=>{if(d)loadSlot(n)}));btn(380,460,200,50,'Zpět',back,22)}
+ if(S.toast>0){S.toast--;tx(S.msg,480,510,24,'center','#363')}}
+
+function frame(ts){seed=Math.floor(ts/140);k=0;B.length=0;update();
+ c.fillStyle='#fbf8ef';c.fillRect(0,0,960,540);c.strokeStyle='#222';c.lineWidth=3;
+ if(S.mode=='title')drawTitle();else if(S.mode=='screen')drawScreen();else if(S.mode=='menu')drawMenu();else if(S.mode=='mini')drawMini();else if(P)drawGame();
+ requestAnimationFrame(frame)}
+
+const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*960/r.width,(e.clientY-r.top)*540/r.height]};
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{const[x,y]=pt(e);
+ if(e.button==2){S.hint=S.mode=='play';return}
+ if(S.mode=='title'||S.mode=='menu'||S.mode=='choice'){const b=B.find(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);b&&b.f();return}
+ if(S.mode=='dialog'){if(S.q.length)S.cur=S.q.shift();else{S.mode='play';const f=S.cb;S.cb=null;f&&f()}return}
+ if(S.mode=='screen'){if(S.sc.i<S.sc.pages.length-1)S.sc.i++;else S.sc.cb();return}
+ if(S.mode!='play')return;
+ if(x>800&&y<40){S.prev='play';S.mode='menu';S.menu='main';return}
+ if(x<140&&y<40){S.inv=!S.inv;return}
+ const sl=slotAt(x,y);
+ if(sl>=0){const id=P.inv[sl];if(S.sel&&S.sel!=id){combine(S.sel,id)}else S.D={id,x,y,sx:x,sy:y,moved:false};return}
+ if(S.inv&&y<74)return;
+ const o=hsAt(x,y);
+ if(o)walkThen(o,S.sel);else if(y>=410&&y<=510){S.tx=x;S.ty=y;S.act=null;S.sel=null}else S.sel=null});
+cv.addEventListener('pointermove',e=>{if(!S.D)return;const[x,y]=pt(e);S.D.x=x;S.D.y=y;if(Math.hypot(x-S.D.sx,y-S.D.sy)>8)S.D.moved=true});
+cv.addEventListener('pointerup',e=>{if(e.button==2){S.hint=false;return}
+ if(!S.D)return;const[x,y]=pt(e),d=S.D;S.D=null;
+ if(!d.moved){S.sel=S.sel==d.id?null:d.id;return}
+ const sl=slotAt(x,y);if(sl>=0&&P.inv[sl]!=d.id){combine(d.id,P.inv[sl]);return}
+ const o=hsAt(x,y);if(o)walkThen(o,d.id)});
+addEventListener('keydown',e=>{KEYS[e.key.toLowerCase()]=1;if(e.key.startsWith('Arrow'))e.preventDefault();
+ if(e.key=='Escape'){if(S.mode=='menu'){if(S.menu!='main')S.menu='main';else if(S.prev=='play')S.mode='play'}else if(S.mode=='play'){S.prev='play';S.mode='menu';S.menu='main'}}
+ if((e.key=='i'||e.key=='I')&&S.mode=='play')S.inv=!S.inv;
+ if((e.key=='h'||e.key=='H')&&S.mode=='play')S.hint=true});
+addEventListener('keyup',e=>{delete KEYS[e.key.toLowerCase()];if(e.key=='h'||e.key=='H')S.hint=false});
+requestAnimationFrame(frame);
+</script></body></html>
