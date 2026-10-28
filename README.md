@@ -2,7 +2,7 @@
 
 Point and click adventura ve stylu Henryho Stickmina se sketchovou kresbou. Hlavní hrdina je zabržděný důchodce Pepa Panděro, kterému dojdou léky.
 
-**Hrát:** h[ttps://Kellneros8733.github.io/za-nas-bylo-lip/](https://kellneros8733.github.io/ZNBL/)
+**Hrát:** [https://Kellneros8733.github.io/za-nas-bylo-lip/](https://kellneros8733.github.io/ZNBL/)
 
 ## Ovládání
 - **Myš / dotyk:** klik na podlahu = chůze, klik na předmět = akce.
