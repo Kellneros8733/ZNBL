@@ -10,8 +10,9 @@ Point and click adventura ve stylu Henryho Stickmina se sketchovou kresbou. Hlav
 - **Menu a ukládání:** klávesa `Esc` (4 pozice + autosave, ukládá se v prohlížeči).
 - **Nápověda (Stará dobrá):** držet pravé tlačítko myši nebo klávesu `H`.
 
-## Dvě obtížnosti
+## Tří obtížnosti: Jsou realizovány volbou Vyber dobu:
 - **Stará dobrá:** nápověda kolečky, bez ukazatelů léků a třesu.
+- **Doba kamenná:** nápověda kolečky, bez ukazatelů léků a třesu, možnost přeskočení miniher.
 - **Mladá divná:** bez nápovědy, s ukazatelem léků a třesu.
 
 ## Upozornění na obsah
